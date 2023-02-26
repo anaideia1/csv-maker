@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Detail
+{% endblock %}
+
+{% block content %}
+    <div>
+        <div class="row">
+            <div class="col-sm-11">
+                <h3> Sample schema </h3>
+            </div>
+            <div class="col-sm-1 ">
+                <a class="btn btn-success" href="{% url 'datasets:schema-edit' schema.pk %}"> Edit schema </a>
+            </div>
+        </div>
+
+        {% if schema.schemacolumn_set %}
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col"> Column name </th>
+                        <th scope="col"> Column type </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for column in schema.schemacolumn_set.all %}
+                        <tr>
+                            <th scope="row"> {{ forloop.counter }} </th>
+                            <td> {{ column.name }} </td>
+                            <td>{{ column.field_type }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div style="margin-top: 60px;">
+                <div class="row">
+                    <div class="col-sm-9">
+                        <h3> Data sets </h3>
+                    </div>
+                    <div class="col-sm-3 container-fluid">
+                        <form id="generate-form">
+                            <div class="input-group">
+                                {% csrf_token %}
+                                {% for field in form %}
+                                    <span class="input-group-text">{{ field.label }}:</span>
+                                    <div class="form-floating">
+                                        {{ field }}
+                                    </div>
+                                {% endfor %}
+                                <input type="submit" class="btn btn-success" value="Generate" />
+                            </div>
+                        <form>
+                    </div>
+                </div>
+
+                {% if schema.dataset_set %}
+                    <table class="table table-bordered" id="datasets_table" style="margin-top: 20px;">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col"> Created </th>
+                                <th scope="col"> Status </th>
+                                <th scope="col"> Actions </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for dataset in schema.dataset_set.all %}
+                                <tr>
+                                    <th scope="row"> {{ forloop.counter }} </th>
+                                    <td> {{ dataset.created_at }} </td>
+                                    <td>{{ dataset.status }}</td>
+                                    <td> {% if dataset.file %}<a href="{{dataset.file.url}}" class="btn btn-primary" download> Download </a>{% endif %} </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p>There are no datasets in the schema.</p>
+                {% endif %}
+            </div>
+        {% else %}
+            <p>There are no column in the schema.</p>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block javascript %}
+    <script>
+        $("#generate-form").submit(function (e) {
+            e.preventDefault();
+            var serializedData = $(this).serialize();
+            var tr_index = $("#datasets_table tbody tr").length + 1
+            $("#datasets_table tbody").append(
+                        `<tr>
+                        <th scope="row"> ${tr_index} </td>
+                        <td> - </td>
+                        <td> Processing </td>s
+                        <td> - </td>
+                        </tr>`
+                    )
+            $.ajax({
+                type: 'POST',
+                url: "{% url 'datasets:schema-detail' schema.pk %}",
+                data: serializedData,
+                success: function (response) {
+                    $("#datasets_table tbody tr:last").remove();
+                    $("#generate-form").trigger('reset');
+                    $("#id_num_rows").focus();
+
+                    var instance = JSON.parse(response["instance"]);
+                    var fields = instance[0]["fields"];
+                    $("#datasets_table tbody").append(
+                        `<tr>
+                        <th scope="row"> ${tr_index} </td>
+                        <td> ${fields["created_at"]||""} </td>
+                        <td> ${fields['status']||''} </td>
+                        <td> <a href="/media/${fields['file']||''}" class="btn btn-primary" download> Download </a> </td>
+                        </tr>`
+                    )
+                },
+                error: function (response) {
+                    alert(response["responseJSON"]["error"]);
+                }
+            })
+        })
+    </script>
+{% endblock javascript %}

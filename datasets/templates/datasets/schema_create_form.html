@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% load crispy_forms_filters %}
+
+{% block title %}
+    Create
+{% endblock %}
+
+{% block content %}
+    <div class="col-md-12">
+        <form action="" method="post">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-sm-6">
+                    <h2> New schema </h2>
+                </div>
+                <div class="col-sm-6" style="text-align: end">
+                    <input class="btn btn-primary" type="submit"
+                           value="Submit"/>
+                </div>
+            </div>
+            {{ form|crispy }}
+
+
+            <script type="text/html" id="columns-template">
+                <tr id="columns-__prefix__"
+                    class="hide_all inline-form">
+                    {% include 'datasets/schema_column_inline_form.html' with inline_form=schema_columns.empty_form %}
+                </tr>
+            </script>
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <h3> Schema columns </h3>
+                </div>
+            </div>
+            {{ schema_columns.management_form }}
+            {% for error in schema_columns.non_form_errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+            <table class="table">
+                <tbody id="item-columns">
+                {% for inline_form in schema_columns.forms %}
+                    {{ inline_form.management_form }}
+                    {{ inline_form.id }}
+
+                    <tr id="columns-{{ forloop.counter0 }}"
+                        class="hide_all inline-form">
+                        {% include 'datasets/schema_column_inline_form.html' %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <a href="#" id="add-column" class="btn btn-primary add-column"> Add
+                column </a>
+        </form>
+    </div>
+{% endblock %}
+
+{% block javascript %}
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('.add-column').click(function (e) {
+                e.preventDefault();
+                var items = $('#item-columns')
+                var totalForms = $('#id_schemacolumn_set-TOTAL_FORMS');
+                var count = Number(totalForms.attr('value'));
+                var tmplMarkup = $('#columns-template').html();
+                var compiledTmpl = tmplMarkup.replace(/__prefix__/g, count);
+                items.append(compiledTmpl);
+                $(".column-delete").click(function (e) {
+                    e.preventDefault();
+                    $(this).closest(".inline-form").remove();
+                });
+                totalForms.attr('value', count + 1);
+            });
+            $(".column-delete").click(function (e) {
+                e.preventDefault();
+                $(this).closest(".inline-form").remove();
+            });
+        });
+    </script>
+{% endblock %}

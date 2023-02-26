@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    List
+{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+    <div>
+        <div class="row">
+            <div class="col-sm-11">
+                <h3> Data schemas </h3>
+            </div>
+            <div class="col-sm-1 ">
+                <a class="btn btn-success" href="{% url 'datasets:schema-create' %}"> New schema </a>
+            </div>
+        </div>
+
+        {% if schema_list %}
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col"> Title </th>
+                        <th scope="col"> Modified </th>
+                        <th scope="col"> Actions </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for schema in schema_list %}
+                        <tr>
+                            <th scope="row"> {{ forloop.counter }} </th>
+                            <td> <a href="{% url 'datasets:schema-detail' schema.pk %}"> {{ schema }} </a> </td>
+                            <td>{{ schema.updated_at }}</td>
+                            <td>
+                                <div>
+                                    <a class='btn btn-primary'href="{% url 'datasets:schema-edit' schema.pk %}"> Edit </a>
+                                    <a class='btn btn-danger'href="{% url 'datasets:schema-delete' schema.pk %}"> Delete </a>
+                                </div>
+
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>There are no schemas in the database.</p>
+        {% endif %}
+    </div>
+{% endblock %}

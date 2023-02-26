@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% load crispy_forms_filters %}
+
+{% block title %}
+    Login
+{% endblock %}
+
+{% block content %}
+    <div style="margin-left: 25%; margin-top: 15%">
+        <div style="width: 50%">
+            <h2>Login</h2>
+            <form method="post">
+                {% csrf_token %}
+                {{ form|crispy }}
+                <div style="text-align: end">
+                    <button class="btn btn-primary" type="submit">Log In
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}
