@@ -55,12 +55,21 @@ class Schema(TimeStampModel):
 
     @property
     def ordered_columns(self):
+        """
+        return schema columns of this instance ordered by 'order' field.
+        """
         return self.schemacolumn_set.order_by('order')
 
     def get_header(self) -> list:
+        """
+        returns list of names of schema columns.
+        """
         return [item.name for item in self.schemacolumn_set.all()]
 
     def get_types(self) -> list:
+        """
+        returns list of types of schema columns.
+        """
         return [item.field_type for item in self.ordered_columns]
 
 
@@ -108,6 +117,9 @@ class IntegerRangeBound(TimeStampModel):
 
 
 class Dataset(TimeStampModel):
+    """
+    Model, which represent instance of data generated for particular schema.
+    """
     PROCESSED = 'PROCESSED'
     READY = 'READY'
     STATUS_CHOICES = [

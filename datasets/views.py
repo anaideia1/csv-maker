@@ -14,10 +14,16 @@ from datasets.services.csv_writer import CsvGenerator
 
 
 class SchemaListView(LoginRequiredMixin, generic.ListView):
+    """
+    ListView for Schema model.
+    """
     model = Schema
 
 
 class SchemaCreateOrUpdateView(LoginRequiredMixin):
+    """
+    Class for common functionality for create and updated views.
+    """
     form_class = SchemaForm
     model = Schema
     template_name = 'datasets/schema_create_form.html'
@@ -44,6 +50,9 @@ class SchemaCreateOrUpdateView(LoginRequiredMixin):
 
 
 class SchemaCreateView(SchemaCreateOrUpdateView, generic.CreateView):
+    """
+    CreateView for Schema model (as well for Schema Columns via formsets).
+    """
     def get_context_data(self, **kwargs):
         data = super(SchemaCreateView, self).get_context_data(**kwargs)
         if self.request.POST:
@@ -66,6 +75,9 @@ class SchemaCreateView(SchemaCreateOrUpdateView, generic.CreateView):
 
 
 class SchemaUpdateView(SchemaCreateOrUpdateView, generic.UpdateView):
+    """
+    UpdateView for Schema model (as well for Schema Columns via formsets).
+    """
     def get_context_data(self, **kwargs):
         data = super(SchemaUpdateView, self).get_context_data(**kwargs)
         if self.request.POST:
@@ -88,11 +100,17 @@ class SchemaUpdateView(SchemaCreateOrUpdateView, generic.UpdateView):
 
 
 class SchemaDeleteView(LoginRequiredMixin, generic.DeleteView):
+    """
+    DeleteView for Schema model.
+    """
     model = Schema
     success_url = reverse_lazy('datasets:schema-list')
 
 
 class SchemaDetailView(LoginRequiredMixin, View):
+    """
+    DetailView for Schema model. Also implement csv-generator functionality.
+    """
     form_class = DatasetGeneratorForm
     template_name = 'datasets/schema_detail.html'
 

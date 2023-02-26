@@ -7,6 +7,9 @@ from datasets.models import Schema, SchemaColumn, Dataset
 
 
 class CsvGenerator:
+    """
+    Class for creating dataset and generating dump data file.
+    """
     def __init__(self, schema_: Schema, num_rows_: int):
         super(CsvGenerator, self).__init__()
         self.schema = schema_
@@ -14,6 +17,9 @@ class CsvGenerator:
 
     @staticmethod
     def _generate_value(field_type):
+        """
+        Method for filling file with values depend on field_type.
+        """
         if field_type == SchemaColumn.DATE:
             res = datetime.datetime.today()
         elif field_type == SchemaColumn.RANGED_INT:
@@ -31,14 +37,23 @@ class CsvGenerator:
 
     @classmethod
     def _generate_row(cls, field_types):
+        """
+        Method for generating one row of values due to field_types.
+        """
         return list(map(cls._generate_value, field_types))
 
     def _data_generator(self):
+        """
+        Generator-function for creating dump data for specific number of rows.
+        """
         field_types = self.schema.get_types()
         for i in range(self.num_rows):
             yield self._generate_row(field_types)
 
     def _generate_dump_file(self, file_name):
+        """
+        Function for creating and filling file with dump data.
+        """
         with open(f'{file_name}', 'w', encoding='UTF8', newline='') as f:
             writer = csv.writer(
                 f,
@@ -55,6 +70,10 @@ class CsvGenerator:
             time.sleep(2)
 
     def generate_dataset(self):
+        """
+        General function for creating file and filling it with dump data.
+        Also creating dataset and attaching it to our generated file.
+        """
         dataset = Dataset.objects.create(
             status=Dataset.PROCESSED,
             schema=self.schema
