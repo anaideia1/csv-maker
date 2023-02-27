@@ -7,7 +7,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
 
 from datasets.forms import (
-    SchemaForm, SchemaColumnFormSet, DatasetGeneratorForm
+    SchemaForm, SchemaColumn, SchemaColumnFormSet, DatasetGeneratorForm,
+    IntegerRangeBound,
 )
 from datasets.models import Schema
 from datasets.services.csv_writer import CsvGenerator
@@ -33,20 +34,25 @@ class SchemaCreateOrUpdateView(LoginRequiredMixin):
     @staticmethod
     def _is_formset_valid(schema_columns):
         is_every_form_valid = all(x.is_valid() for x in schema_columns)
-        print(is_every_form_valid)
         is_whole_form_valid = schema_columns.is_valid()
-        print(is_whole_form_valid)
         return is_every_form_valid and is_whole_form_valid
 
     def _form_objects_saving(self, form, schema_columns):
         with transaction.atomic():
             self.object = form.save()
             columns = schema_columns.save(commit=False)
-            for item in schema_columns.deleted_objects:
+            for item, _ in schema_columns.deleted_objects:
                 item.delete()
-            for column in columns:
+
+            for column, data in columns:
                 column.schema = self.object
                 column.save()
+                if column.field_type == SchemaColumn.RANGED_INT:
+                    IntegerRangeBound.objects.create(
+                        lower_bound=data.get('lower_bound'),
+                        upper_bound=data.get('upper_bound'),
+                        schema_column=column,
+                    )
 
 
 class SchemaCreateView(SchemaCreateOrUpdateView, generic.CreateView):

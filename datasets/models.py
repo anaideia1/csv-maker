@@ -103,6 +103,11 @@ class SchemaColumn(TimeStampModel):
     def __str__(self):
         return f'{self.field_type} column: {self.name}'
 
+    @property
+    def bounds(self):
+        bounds = self.integerrangebound_set.first()
+        return bounds
+
 
 class IntegerRangeBound(TimeStampModel):
     """

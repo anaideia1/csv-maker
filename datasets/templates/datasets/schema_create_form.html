@@ -65,6 +65,29 @@
 
     <script>
         $(document).ready(function () {
+            function link_bound_fields_to_field_type(num) {
+                var lower_bound_div = $(`#div_id_schemacolumn_set-${num}-lower_bound`)
+                var lower_bound = $(`#id_schemacolumn_set-${num}-lower_bound`)
+                var upper_bound_div = $(`#div_id_schemacolumn_set-${num}-upper_bound`)
+                var upper_bound = $(`#id_schemacolumn_set-${num}-upper_bound`)
+                var field_type = $(`#id_schemacolumn_set-${num}-field_type`)
+                field_type.on('change', function (e) {
+                    e.preventDefault();
+                    if (field_type.val() === 'RANGED_INT'){
+                        lower_bound_div.show()
+                        upper_bound_div.show()
+                        lower_bound.prop('disabled', false);
+                        upper_bound.prop('disabled', false);
+                    } else {
+                        lower_bound_div.hide()
+                        upper_bound_div.hide()
+                        lower_bound.prop('disabled', true);
+                        upper_bound.prop('disabled', true);
+                    }
+                });
+                field_type.trigger( "change" );
+            }
+
             $('.add-column').click(function (e) {
                 e.preventDefault();
                 var items = $('#item-columns')
@@ -73,6 +96,7 @@
                 var tmplMarkup = $('#columns-template').html();
                 var compiledTmpl = tmplMarkup.replace(/__prefix__/g, count);
                 items.append(compiledTmpl);
+                link_bound_fields_to_field_type(count)
                 $(".column-delete").click(function (e) {
                     e.preventDefault();
                     $(this).closest(".inline-form").remove();
@@ -83,6 +107,10 @@
                 e.preventDefault();
                 $(this).closest(".inline-form").remove();
             });
+            var totalForms = $('#id_schemacolumn_set-TOTAL_FORMS')
+            for (var i = 0; i < totalForms.attr('value'); i++) {
+                link_bound_fields_to_field_type(i)
+            }
         });
     </script>
 {% endblock %}

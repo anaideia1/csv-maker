@@ -2,7 +2,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.forms import inlineformset_factory, BaseInlineFormSet
 
-from datasets.models import Schema, SchemaColumn
+from datasets.models import Schema, SchemaColumn, IntegerRangeBound
 
 
 class SchemaForm(forms.ModelForm):
@@ -18,6 +18,9 @@ class SchemaForm(forms.ModelForm):
 
 class SchemaColumnForm(forms.ModelForm):
     DELETE = 'DELETE'
+
+    lower_bound = forms.IntegerField()
+    upper_bound = forms.IntegerField()
 
     class Meta:
         model = SchemaColumn
@@ -42,6 +45,17 @@ class SchemaColumnForm(forms.ModelForm):
             raise ValidationError(errors)
         return cleaned_data
 
+    def save(self, *args, **kwargs):
+        instance = super().save(*args, **kwargs)
+        if instance.field_type == SchemaColumn.RANGED_INT:
+            data = self.cleaned_data
+            additional_data = {'lower_bound': data.get('lower_bound'),
+                               'upper_bound': data.get('upper_bound')}
+        else:
+            additional_data = {}
+        return instance, additional_data
+
+
     @staticmethod
     def _is_empty_form(data):
         data.pop('schema')
@@ -54,8 +68,11 @@ class SchemaColumnForm(forms.ModelForm):
     @classmethod
     def _get_required_fields_errors(cls, data):
         res = {}
+        main_values = ['order', 'name', 'field_type']
+        if data.get('field_type') == SchemaColumn.RANGED_INT:
+            main_values.extend(['lower_bound', 'upper_bound'])
         for name, value in data.items():
-            if not value and name not in ['id', cls.DELETE]:
+            if not value and name in main_values:
                 res.update({name: 'This field is required'})
         return res
 

@@ -29,7 +29,7 @@
                         <tr>
                             <th scope="row"> {{ forloop.counter }} </th>
                             <td> {{ column.name }} </td>
-                            <td>{{ column.field_type }}</td>
+                            <td>{{ column.field_type }} {% if column.bounds %} ({{ column.bounds.lower_bound }}, {{ column.bounds.upper_bound }}) {% endif %}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
