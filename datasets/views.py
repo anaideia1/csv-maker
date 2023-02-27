@@ -7,8 +7,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
 
 from datasets.forms import (
-    SchemaForm, SchemaColumn, SchemaColumnFormSet, DatasetGeneratorForm,
-    IntegerRangeBound,
+    SchemaForm, SchemaColumnFormSet, DatasetGeneratorForm
 )
 from datasets.models import Schema
 from datasets.services.csv_writer import CsvGenerator
@@ -41,18 +40,11 @@ class SchemaCreateOrUpdateView(LoginRequiredMixin):
         with transaction.atomic():
             self.object = form.save()
             columns = schema_columns.save(commit=False)
-            for item, _ in schema_columns.deleted_objects:
+            for item in schema_columns.deleted_objects:
                 item.delete()
-
-            for column, data in columns:
+            for column in columns:
                 column.schema = self.object
                 column.save()
-                if column.field_type == SchemaColumn.RANGED_INT:
-                    IntegerRangeBound.objects.create(
-                        lower_bound=data.get('lower_bound'),
-                        upper_bound=data.get('upper_bound'),
-                        schema_column=column,
-                    )
 
 
 class SchemaCreateView(SchemaCreateOrUpdateView, generic.CreateView):

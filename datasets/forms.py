@@ -2,7 +2,11 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.forms import inlineformset_factory, BaseInlineFormSet
 
-from datasets.models import Schema, SchemaColumn, IntegerRangeBound
+from datasets.models import (
+    Schema, SchemaColumn, DateColumnField, EmailColumnField,
+    IntegerColumnField, TextColumnField, FullNameColumnField,
+    PhoneColumnField, CompanyColumnField, JobColumnField, DomainNameColumnField
+)
 
 
 class SchemaForm(forms.ModelForm):
@@ -17,10 +21,23 @@ class SchemaForm(forms.ModelForm):
 
 
 class SchemaColumnForm(forms.ModelForm):
+    FIELD_TYPE_CLASSES = {
+        SchemaColumn.DATE: DateColumnField,
+        SchemaColumn.RANGED_INT: IntegerColumnField,
+        SchemaColumn.FULLNAME: FullNameColumnField,
+        SchemaColumn.EMAIL: EmailColumnField,
+        SchemaColumn.TEXT: TextColumnField,
+        SchemaColumn.PHONE: PhoneColumnField,
+        SchemaColumn.COMPANY: CompanyColumnField,
+        SchemaColumn.JOB: JobColumnField,
+        SchemaColumn.DOMAIN: DomainNameColumnField,
+    }
+
     DELETE = 'DELETE'
 
     lower_bound = forms.IntegerField()
     upper_bound = forms.IntegerField()
+    number_of_sentences = forms.IntegerField()
 
     class Meta:
         model = SchemaColumn
@@ -45,16 +62,26 @@ class SchemaColumnForm(forms.ModelForm):
             raise ValidationError(errors)
         return cleaned_data
 
-    def save(self, *args, **kwargs):
-        instance = super().save(*args, **kwargs)
-        if instance.field_type == SchemaColumn.RANGED_INT:
-            data = self.cleaned_data
-            additional_data = {'lower_bound': data.get('lower_bound'),
-                               'upper_bound': data.get('upper_bound')}
+    def save(self, commit=True):
+        data = self._filtered_data()
+        column_class = self.FIELD_TYPE_CLASSES.get(data.get('field_type'))
+        if commit:
+            instance = column_class.objects.create(data)
         else:
-            additional_data = {}
-        return instance, additional_data
+            instance = column_class(**data)
+        return instance
 
+    def _filtered_data(self):
+        data = self.cleaned_data
+        field_type = data.get('field_type')
+        data.pop('DELETE')
+        if field_type != SchemaColumn.RANGED_INT:
+            data.pop('lower_bound')
+            data.pop('upper_bound')
+        if field_type != SchemaColumn.TEXT:
+            data.pop('number_of_sentences')
+
+        return data
 
     @staticmethod
     def _is_empty_form(data):

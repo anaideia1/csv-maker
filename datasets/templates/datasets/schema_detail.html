@@ -25,21 +25,21 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for column in schema.schemacolumn_set.all %}
+                    {% for column in schema.ordered_fields %}
                         <tr>
                             <th scope="row"> {{ forloop.counter }} </th>
                             <td> {{ column.name }} </td>
-                            <td>{{ column.field_type }} {% if column.bounds %} ({{ column.bounds.lower_bound }}, {{ column.bounds.upper_bound }}) {% endif %}</td>
+                            <td> {{ column.field_type }} {{ column.number_of_sentences }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
             </table>
             <div style="margin-top: 60px;">
                 <div class="row">
-                    <div class="col-sm-9">
+                    <div class="col-sm-8">
                         <h3> Data sets </h3>
                     </div>
-                    <div class="col-sm-3 container-fluid">
+                    <div class="col-sm-4 container-fluid">
                         <form id="generate-form">
                             <div class="input-group">
                                 {% csrf_token %}

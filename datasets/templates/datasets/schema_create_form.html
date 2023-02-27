@@ -70,6 +70,8 @@
                 var lower_bound = $(`#id_schemacolumn_set-${num}-lower_bound`)
                 var upper_bound_div = $(`#div_id_schemacolumn_set-${num}-upper_bound`)
                 var upper_bound = $(`#id_schemacolumn_set-${num}-upper_bound`)
+                var number_of_sentences_div = $(`#div_id_schemacolumn_set-${num}-number_of_sentences`)
+                var number_of_sentences = $(`#id_schemacolumn_set-${num}-number_of_sentences`)
                 var field_type = $(`#id_schemacolumn_set-${num}-field_type`)
                 field_type.on('change', function (e) {
                     e.preventDefault();
@@ -83,6 +85,14 @@
                         upper_bound_div.hide()
                         lower_bound.prop('disabled', true);
                         upper_bound.prop('disabled', true);
+                    }
+                    e.preventDefault();
+                    if (field_type.val() === 'TEXT'){
+                        number_of_sentences_div.show()
+                        number_of_sentences.prop('disabled', false);
+                    } else {
+                        number_of_sentences_div.hide()
+                        number_of_sentences.prop('disabled', true);
                     }
                 });
                 field_type.trigger( "change" );
