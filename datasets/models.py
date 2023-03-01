@@ -68,20 +68,14 @@ class Schema(TimeStampModel):
         sorted by 'order' field
         """
         fields = get_field_from_column(self)
-        fields.sort(key=lambda item: item.id)
+        fields.sort(key=lambda item: item.order)
         return fields
 
     def get_header(self) -> list:
         """
         Return list of names of schema columns.
         """
-        return [item.name for item in self.schemacolumn_set.all()]
-
-    def get_types(self) -> list:
-        """
-        Return list of types of schema columns.
-        """
-        return [item.field_type for item in self.ordered_columns]
+        return [item.name for item in self.ordered_columns]
 
 
 class SchemaColumn(TimeStampModel):
@@ -227,6 +221,10 @@ class Dataset(TimeStampModel):
 
 
 def get_field_from_column(schema):
+    """
+    Return list with subclasses for SchemaColumn of all field types
+    (DateColumnField, IntegerColumnField etc.) from schema
+    """
     field_classes_list = [
         DateColumnField, IntegerColumnField, FullNameColumnField,
         EmailColumnField, TextColumnField, PhoneColumnField,
