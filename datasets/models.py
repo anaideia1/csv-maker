@@ -1,5 +1,9 @@
 from django.db import models
-import datetime
+
+from datasets.services.column_data_generator import (
+    IntColumnDataGenerator, StringColumnDataGenerator, JobColumnDataGenerator,
+    PhoneColumnDataGenerator, DateColumnDataGenerator
+)
 
 
 class TimeStampModel(models.Model):
@@ -121,8 +125,11 @@ class DateColumnField(SchemaColumn):
     """
     SchemaColumn with DATE field_type.
     """
-    def generate_dump_value(self):
-        return self.created_at
+    @staticmethod
+    def generate_dump_value():
+        gen = DateColumnDataGenerator()
+        rand_date = gen.dump_date_value()
+        return rand_date
 
 
 class IntegerColumnField(SchemaColumn):
@@ -136,23 +143,32 @@ class IntegerColumnField(SchemaColumn):
         return super().__str__() + f' ({self.lower_bound}-{self.upper_bound})'
 
     def generate_dump_value(self):
-        return (self.upper_bound + self.lower_bound) // 2
+        gen = IntColumnDataGenerator(self.lower_bound, self.upper_bound)
+        res = gen.dump_int_value()
+        return res
 
 
 class EmailColumnField(SchemaColumn):
     """
     SchemaColumn with EMAIL field_type.
     """
-    def generate_dump_value(self):
-        return f'{self.name}@example.com'
+    @staticmethod
+    def generate_dump_value():
+        gen = StringColumnDataGenerator(6, 15)
+        res = gen.dump_str_value()
+        return f'{res}@example.com'
 
 
 class FullNameColumnField(SchemaColumn):
     """
     SchemaColumn with FULLNAME field_type.
     """
-    def generate_dump_value(self):
-        return f'{self.name} sur{self.name}'
+    @staticmethod
+    def generate_dump_value():
+        gen = StringColumnDataGenerator(6, 15)
+        name = gen.dump_str_value().capitalize()
+        surname = gen.dump_str_value().capitalize()
+        return f'{name} {surname}'
 
 
 class TextColumnField(SchemaColumn):
@@ -162,39 +178,58 @@ class TextColumnField(SchemaColumn):
     number_of_sentences = models.IntegerField()
 
     def generate_dump_value(self):
-        return f'This is one sentence schema' * self.number_of_sentences
+        gen = StringColumnDataGenerator(30, 150)
+        sentences = []
+        for _ in range(self.number_of_sentences):
+            sentence = gen.dump_str_value().capitalize()
+            sentences.append(sentence)
+        res_text = '. '.join(sentences) + '.'
+        return res_text
 
 
 class PhoneColumnField(SchemaColumn):
     """
     SchemaColumn with PHONE field_type.
     """
-    def generate_dump_value(self):
-        return f'+38(044)' + str(self.id)*7
+    @staticmethod
+    def generate_dump_value():
+        gen = PhoneColumnDataGenerator()
+        phone = gen.dump_phone_value()
+        return phone
 
 
 class CompanyColumnField(SchemaColumn):
     """
     SchemaColumn with COMPANY field_type.
     """
-    def generate_dump_value(self):
-        return f'Planeks ({self.name})'
+
+    @staticmethod
+    def generate_dump_value():
+        gen = StringColumnDataGenerator(6, 14)
+        company_name = gen.dump_str_value().capitalize()
+        return f'{company_name} and co.'
 
 
 class JobColumnField(SchemaColumn):
     """
     SchemaColumn with JOB field_type.
     """
-    def generate_dump_value(self):
-        return f'Python dev at {self.name}'
+    @staticmethod
+    def generate_dump_value():
+        gen = JobColumnDataGenerator()
+        job_name = gen.dump_job_value()
+        return job_name
 
 
 class DomainNameColumnField(SchemaColumn):
     """
     SchemaColumn with DOMAIN field_type.
     """
-    def generate_dump_value(self):
-        return f'{self.name}.ua'
+    @staticmethod
+    def generate_dump_value():
+        gen = StringColumnDataGenerator(6, 20)
+        host_value = gen.dump_str_value()
+        return f'{host_value}.ua'
 
 
 class Dataset(TimeStampModel):
