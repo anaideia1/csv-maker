@@ -3,7 +3,7 @@ import os
 from django.core.files.base import File
 from django.conf import settings
 
-from datasets.models import Schema, SchemaColumn, Dataset
+from datasets.models import Schema, Dataset
 
 
 class CsvGenerator:
