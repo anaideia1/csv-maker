@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 
 from datasets.services.column_data_generator import (
     IntColumnDataGenerator, StringColumnDataGenerator, JobColumnDataGenerator,
@@ -53,6 +54,10 @@ class Schema(TimeStampModel):
         max_length=10,
         choices=QUOTE_CHOICES,
         default=SINGLE_QUOTE,
+    )
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE
     )
 
     def __str__(self) -> str:
