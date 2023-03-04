@@ -248,7 +248,7 @@ class Dataset(TimeStampModel):
         (READY, 'Ready'),
     ]
 
-    file = models.FileField(null=True, blank=True)
+    file = models.FileField(upload_to='datasets/', null=True, blank=True)
     status = models.CharField(
         max_length=10,
         choices=STATUS_CHOICES,
