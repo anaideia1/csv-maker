@@ -19,6 +19,9 @@ class SchemaListView(LoginRequiredMixin, generic.ListView):
     """
     model = Schema
 
+    def get_queryset(self):
+        return self.model.objects.filter(author=self.request.user)
+
 
 class SchemaCreateOrUpdateView(LoginRequiredMixin):
     """
@@ -36,9 +39,11 @@ class SchemaCreateOrUpdateView(LoginRequiredMixin):
         is_whole_form_valid = schema_columns.is_valid()
         return is_every_form_valid and is_whole_form_valid
 
-    def _form_objects_saving(self, form, schema_columns):
+    def _form_objects_saving(self, form, schema_columns, user):
         with transaction.atomic():
-            self.object = form.save()
+            self.object = form.save(commit=False)
+            self.object.author = user
+            self.object.save()
             columns = schema_columns.save(commit=False)
             for item in schema_columns.deleted_objects:
                 item.delete()
@@ -68,7 +73,7 @@ class SchemaCreateView(SchemaCreateOrUpdateView, generic.CreateView):
         if not self._is_formset_valid(schema_columns):
             return self.render_to_response(self.get_context_data(form=form))
 
-        self._form_objects_saving(form, schema_columns)
+        self._form_objects_saving(form, schema_columns, self.request.user)
         return redirect('datasets:schema-list')
 
 
@@ -93,7 +98,7 @@ class SchemaUpdateView(SchemaCreateOrUpdateView, generic.UpdateView):
         if not self._is_formset_valid(schema_columns):
             return self.render_to_response(self.get_context_data(form=form))
         else:
-            self._form_objects_saving(form, schema_columns)
+            self._form_objects_saving(form, schema_columns, self.request.user)
             return redirect('datasets:schema-list')
 
 

@@ -12,7 +12,7 @@ from datasets.models import (
 class SchemaForm(forms.ModelForm):
     class Meta:
         model = Schema
-        fields = '__all__'
+        exclude = ('author', )
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'separator': forms.Select(attrs={'class': 'form-control'}),
