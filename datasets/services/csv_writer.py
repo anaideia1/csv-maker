@@ -32,13 +32,15 @@ class CsvGenerator:
         for i in range(self.num_rows):
             yield self._generate_row(fields)
 
-    def _generate_dump_file(self, file_path: str) -> None:
+    def _generate_dump_file(self, file_name: str, dataset: Dataset) -> None:
         """
         Function for creating and filling file with dump data.
         """
-        with open(file_path, 'w', encoding='UTF8', newline='') as f:
+        file_path = os.path.join(settings.MEDIA_ROOT, 'temp_data_file.csv')
+        with open(file_path, 'w+', encoding='UTF8', newline='') as f:
+            file = File(f)
             writer = csv.writer(
-                f,
+                file,
                 delimiter=self.schema.separator,
                 quotechar=self.schema.quote_type
             )
@@ -51,6 +53,11 @@ class CsvGenerator:
             import time
             time.sleep(2)
 
+            dataset.file.save(file_name, file)
+            dataset.status = Dataset.READY
+
+        os.remove(file_path)
+
     def generate_dataset(self) -> Dataset:
         """
         General function for creating file and filling it with dump data.
@@ -61,12 +68,7 @@ class CsvGenerator:
             schema=self.schema
         )
         file_name = f'{self.schema.name}_{dataset.created_at}.csv'
-        file_path = os.path.join(settings.MEDIA_ROOT, file_name)
-        self._generate_dump_file(file_path)
-
-        with open(f'{file_path}') as generated_file:
-            dataset.file.save(file_name, File(generated_file))
-            dataset.status = Dataset.READY
-            dataset.save()
+        self._generate_dump_file(file_name, dataset)
+        dataset.save()
 
         return dataset
