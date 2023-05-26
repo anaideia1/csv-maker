@@ -12,7 +12,9 @@
                 <h3> Data schemas </h3>
             </div>
             <div class="col-sm-1 ">
-                <a class="btn btn-success" href="{% url 'datasets:schema-create' %}"> New schema </a>
+                <a id="id_schema_add" class="btn btn-success"
+                   href="{% url 'datasets:schema-create' %}"> New schema
+                </a>
             </div>
         </div>
 
@@ -30,7 +32,7 @@
                     {% for schema in schema_list %}
                         <tr>
                             <th scope="row"> {{ forloop.counter }} </th>
-                            <td> <a href="{% url 'datasets:schema-detail' schema.pk %}"> {{ schema }} </a> </td>
+                            <td> <a href="{% url 'datasets:schema-detail' schema.pk %}">{{ schema }}</a> </td>
                             <td>{{ schema.updated_at }}</td>
                             <td>
                                 <div>

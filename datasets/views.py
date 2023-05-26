@@ -12,6 +12,9 @@ from datasets.forms import (
 from datasets.models import Schema
 from datasets.services.csv_writer import CsvGenerator
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 class SchemaListView(LoginRequiredMixin, generic.ListView):
     """

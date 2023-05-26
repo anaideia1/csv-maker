@@ -44,21 +44,31 @@ class Schema(TimeStampModel):
         (DOUBLE_QUOTE, 'Double quote (\")'),
     ]
 
-    name = models.CharField(max_length=120)
+    name = models.CharField(
+        max_length=120,
+        verbose_name='Schema name',
+        unique=True
+    )
     separator = models.CharField(
         max_length=10,
         choices=SEPARATOR_CHOICES,
         default=COMMA,
+        verbose_name='Schema separator',
     )
     quote_type = models.CharField(
         max_length=10,
         choices=QUOTE_CHOICES,
         default=SINGLE_QUOTE,
+        verbose_name='Schema quote type',
     )
     author = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE
     )
+
+    class Meta:
+        verbose_name = 'Schema'
+        verbose_name_plural = 'Schemes'
 
     def __str__(self) -> str:
         return self.name

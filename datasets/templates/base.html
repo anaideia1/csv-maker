@@ -23,7 +23,11 @@
                             <span class="navbar-text">
                                 Hello, {{ request.user }}
                             </span>
-                            <a class="btn btn-sm btn-outline-secondary" href="{% url 'logout' %}">Logout</a>
+                            <a id="id_logout"
+                               class="btn btn-sm btn-outline-secondary"
+                               href="{% url 'logout' %}">
+                                Logout
+                            </a>
                         </div>
                     {% endif %}
                 </div>

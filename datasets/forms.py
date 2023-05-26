@@ -98,6 +98,8 @@ class SchemaColumnForm(forms.ModelForm):
         main_values = ['order', 'name', 'field_type']
         if data.get('field_type') == SchemaColumn.RANGED_INT:
             main_values.extend(['lower_bound', 'upper_bound'])
+        if data.get('field_type') == SchemaColumn.TEXT:
+            main_values.extend(['number_of_sentences', ])
         for name, value in data.items():
             if not value and name in main_values:
                 res.update({name: 'This field is required'})
