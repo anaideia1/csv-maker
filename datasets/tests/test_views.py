@@ -1,5 +1,5 @@
 import unittest
-from і import webdriver
+from selenium import webdriver
 from selenium.webdriver.common.by import By
 
 from datasets.models import SchemaColumn
